@@ -1,0 +1,325 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Analyzer - Thiranex</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #38bdf8;
+            font-size: 1.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            padding-right: 60px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+        #togglePass {
+            position: absolute;
+            right: 12px;
+            top: 40px;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: bold;
+            user-select: none;
+        }
+        #togglePass:hover {
+            color: #38bdf8;
+        }
+        .strength-meter {
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 4px;
+        }
+        .strength-text {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            min-height: 24px;
+        }
+        .feedback {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #38bdf8;
+        }
+        .feedback h3 {
+            margin-bottom: 0.5rem;
+            color: #38bdf8;
+            font-size: 1rem;
+        }
+        .feedback ul {
+            padding-left: 1.2rem;
+            list-style: none;
+        }
+        .feedback li {
+            margin-bottom: 0.4rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #0ea5e9;
+        }
+        .suggested-pass {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            word-break: break-all;
+            display: none;
+            border: 1px dashed #334155;
+            text-align: center;
+        }
+        .suggested-pass code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .weak { background-color: #ef4444; }
+        .medium { background-color: #f59e0b; }
+        .strong { background-color: #22c55e; }
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Analyzer</h1>
+        <p class="subtitle">Thiranex Cyber Security Internship Task</p>
+        
+        <div class="input-group">
+            <label for="password">Enter Password</label>
+            <input type="password" id="password" placeholder="Type password here...">
+            <span id="togglePass">SHOW</span>
+        </div>
+
+        <div class="strength-meter">
+            <div id="strengthBar" class="strength-bar"></div>
+        </div>
+        <div id="strengthText" class="strength-text" style="color: #94a3b8;">Empty</div>
+
+        <div class="feedback">
+            <h3>Security Checklist</h3>
+            <ul id="checklist">
+                <li id="rule-length">❌ Minimum 8 characters</li>
+                <li id="rule-case">❌ Mix of uppercase & lowercase</li>
+                <li id="rule-number">❌ At least one number (0-9)</li>
+                <li id="rule-special">❌ At least one special character</li>
+            </ul>
+        </div>
+
+        <button class="btn" id="generateBtn">Generate Secure Password</button>
+        <div class="suggested-pass" id="suggestedBox">
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.5rem;">Copy Secure Suggestion:</p>
+            <code id="suggestedPass"></code>
+        </div>
+
+        <div class="footer">
+            Local Web Panel for Testing by MrKarthick
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const togglePassBtn = document.getElementById('togglePass');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const generateBtn = document.getElementById('generateBtn');
+        const suggestedBox = document.getElementById('suggestedBox');
+        const suggestedPass = document.getElementById('suggestedPass');
+
+        // Checklist Items
+        const ruleLength = document.getElementById('rule-length');
+        const ruleCase = document.getElementById('rule-case');
+        const ruleNumber = document.getElementById('rule-number');
+        const ruleSpecial = document.getElementById('rule-special');
+
+        // Toggle Password Visibility
+        togglePassBtn.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                togglePassBtn.textContent = 'HIDE';
+            } else {
+                passwordInput.type = 'password';
+                togglePassBtn.textContent = 'SHOW';
+            }
+        });
+
+        // Real-Time Validation Loop
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            
+            if (!val) {
+                strengthBar.style.width = '0%';
+                strengthBar.className = 'strength-bar';
+                strengthText.textContent = 'Empty';
+                strengthText.style.color = '#94a3b8';
+                resetChecklist();
+                return;
+            }
+
+            // Criteria Evaluators
+            const criteria = {
+                length: val.length >= 8,
+                case: /[a-z]/.test(val) && /[A-Z]/.test(val),
+                number: /[0-9]/.test(val),
+                special: /[^A-Za-z0-9]/.test(val)
+            };
+
+            // Update individual layout markers
+            updateRuleUI(ruleLength, criteria.length, 'Minimum 8 characters');
+            updateRuleUI(ruleCase, criteria.case, 'Mix of uppercase & lowercase');
+            updateRuleUI(ruleNumber, criteria.number, 'At least one number (0-9)');
+            updateRuleUI(ruleSpecial, criteria.special, 'At least one special character');
+
+            // Calculate Cumulative Matrix Score
+            const passedCount = Object.values(criteria).filter(Boolean).length;
+            
+            // Clean slate for runtime styling classes
+            strengthBar.className = 'strength-bar';
+
+            if (passedCount <= 2) {
+                strengthBar.style.width = '33%';
+                strengthBar.classList.add('weak');
+                strengthText.textContent = 'Weak 🔴';
+                strengthText.style.color = '#ef4444';
+            } else if (passedCount === 3) {
+                strengthBar.style.width = '66%';
+                strengthBar.classList.add('medium');
+                strengthText.textContent = 'Medium 🟡';
+                strengthText.style.color = '#f59e0b';
+            } else if (passedCount === 4) {
+                strengthBar.style.width = '100%';
+                strengthBar.classList.add('strong');
+                strengthText.textContent = 'Strong 🔥';
+                strengthText.style.color = '#22c55e';
+            }
+        });
+
+        function updateRuleUI(element, isPassed, text) {
+            if (isPassed) {
+                element.innerHTML = `✅ ${text}`;
+                element.style.color = '#22c55e';
+            } else {
+                element.innerHTML = `❌ ${text}`;
+                element.style.color = '#cbd5e1';
+            }
+        }
+
+        function resetChecklist() {
+            updateRuleUI(ruleLength, false, 'Minimum 8 characters');
+            updateRuleUI(ruleCase, false, 'Mix of uppercase & lowercase');
+            updateRuleUI(ruleNumber, false, 'At least one number (0-9)');
+            updateRuleUI(ruleSpecial, false, 'At least one special character');
+        }
+
+        // Entropy Compliant Password Generator Block
+        generateBtn.addEventListener('click', () => {
+            const uppers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const lowers = "abcdefghijklmnopqrstuvwxyz";
+            const numbers = "0123456789";
+            const specials = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+            const allChars = uppers + lowers + numbers + specials;
+
+            // Enforce basic standard requirements array elements
+            let generated = [
+                uppers[Math.floor(Math.random() * uppers.length)],
+                lowers[Math.floor(Math.random() * lowers.length)],
+                numbers[Math.floor(Math.random() * numbers.length)],
+                specials[Math.floor(Math.random() * specials.length)]
+            ];
+
+            // Fill balance required length up to 14 characters for structural density
+            for (let i = 0; i < 10; i++) {
+                generated.push(allChars[Math.floor(Math.random() * allChars.length)]);
+            }
+
+            // Shuffle pool layout string sequentially
+            generated = generated.sort(() => Math.random() - 0.5).join('');
+            
+            suggestedPass.textContent = generated;
+            suggestedBox.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
